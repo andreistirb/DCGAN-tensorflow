@@ -25,6 +25,7 @@ flags.DEFINE_boolean("train", False, "True for training, False for testing [Fals
 flags.DEFINE_boolean("crop", False, "True for training, False for testing [False]")
 flags.DEFINE_boolean("visualize", False, "True for visualizing, False for nothing [False]")
 flags.DEFINE_integer("generate_test_images", 100, "Number of images to generate during test. [100]")
+flags.DEFINE_integer("c_dim", 3, "Number of channels of images in the dataset, 1 for grayscale, 3 for rgb. [3]")
 FLAGS = flags.FLAGS
 
 def main(_):
@@ -60,7 +61,9 @@ def main(_):
           input_fname_pattern=FLAGS.input_fname_pattern,
           crop=FLAGS.crop,
           checkpoint_dir=FLAGS.checkpoint_dir,
-          sample_dir=FLAGS.sample_dir)
+          sample_dir=FLAGS.sample_dir,
+          c_dim=FLAGS.c_dim,
+          train=FLAGS.train)
     else:
       dcgan = DCGAN(
           sess,
@@ -75,7 +78,9 @@ def main(_):
           input_fname_pattern=FLAGS.input_fname_pattern,
           crop=FLAGS.crop,
           checkpoint_dir=FLAGS.checkpoint_dir,
-          sample_dir=FLAGS.sample_dir)
+          sample_dir=FLAGS.sample_dir,
+          c_dim=FLAGS.c_dim,
+          train=FLAGS.train)
 
     show_all_variables()
 
