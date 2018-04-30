@@ -150,10 +150,16 @@ class DCGAN(object):
     self.saver = tf.train.Saver()
 
   def train(self, config):
+    try:
+      tf.global_variables_initializer().run()
+    except:
+      tf.initialize_all_variables().run()
+
     d_optim = tf.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
               .minimize(self.d_loss, var_list=self.d_vars)
     g_optim = tf.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
               .minimize(self.g_loss, var_list=self.g_vars)
+    
     try:
       tf.global_variables_initializer().run()
     except:
@@ -417,10 +423,14 @@ class DCGAN(object):
         s_h16, s_w16 = conv_out_size_same(s_h8, 2), conv_out_size_same(s_w8, 2)
 
         # project `z` and reshape
-        h0 = tf.reshape(
-            linear(z, self.gf_dim*8*s_h16*s_w16, 'g_h0_lin'),
+        h0 = linear(z, self.gf_dim*8*s_h16*s_w16, 'g_h0_lin')
+        h0 = tf.Print(h0, [h0], message='Output of linear layer before reshape: ', first_n=1, summarize=16384)
+        h0 = tf.reshape(h0,
             [-1, s_h16, s_w16, self.gf_dim * 8])
-        h0 = tf.nn.relu(self.g_bn0(h0, train=False))
+        #h0 = tf.Print(h0,[h0],message='Output of linear layer after reshape: ', first_n=1, summarize=16384)
+        batchnorm0 = self.g_bn0(h0, train=False)
+        #batchnorm0 = tf.Print(batchnorm0, [batchnorm0], message="Output of batchnorm0: ", first_n=1, summarize=16384)
+        h0 = tf.nn.relu(batchnorm0)
 
         h1 = deconv2d(h0, [self.batch_size, s_h8, s_w8, self.gf_dim*4], name='g_h1')
         h1 = tf.nn.relu(self.g_bn1(h1, train=False))
